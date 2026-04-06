@@ -1,18 +1,9 @@
 import { Elysia } from "elysia";
-import { db } from "./db";
-import { users } from "./db/schema";
+import { usersRoute } from "./routes/users-route";
 
 const app = new Elysia()
 	.get("/", () => "Hello, Elysia with Bun!")
-	.get("/users", async () => {
-		try {
-			const result = await db.select().from(users);
-			return result;
-		} catch (error) {
-			console.error(error);
-			return { error: "Failed to fetch users. Is your database running?" };
-		}
-	})
+	.use(usersRoute)
 	.listen(3000);
 
 console.log(
