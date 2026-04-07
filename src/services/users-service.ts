@@ -57,6 +57,34 @@ export const usersService = {
 		};
 	},
 
+	async getCurrentUser(authHeader: string | undefined) {
+		if (!authHeader || !authHeader.startsWith("Bearer ")) {
+			throw new Error("unauthorized");
+		}
+		const token = authHeader.substring(7);
+
+		const sessionRecord = await db
+			.select()
+			.from(sessions)
+			.where(eq(sessions.token, token));
+
+		if (sessionRecord.length === 0) {
+			throw new Error("unauthorized");
+		}
+
+		const userInfo = await db
+			.select()
+			.from(users)
+			.where(eq(users.id, sessionRecord[0].userId));
+
+		if (userInfo.length === 0) {
+			throw new Error("unauthorized");
+		}
+
+		const { password, ...safeUser } = userInfo[0];
+		return { data: safeUser };
+	},
+
 	async getAllUsers() {
 		return db.select().from(users);
 	},
