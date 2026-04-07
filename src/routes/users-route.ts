@@ -1,7 +1,9 @@
 import { Elysia, t } from "elysia";
 import { usersService } from "../services/users-service";
+import { bearer } from "@elysiajs/bearer";
 
 export const usersRoute = new Elysia({ prefix: "/api" })
+	.use(bearer())
 	.post("/users", async ({ body, set }) => {
 		try {
 			const result = await usersService.createUser(body);
@@ -36,9 +38,10 @@ export const usersRoute = new Elysia({ prefix: "/api" })
 			password: t.String(),
 		})
 	})
-	.get("/users/current", async ({ headers, set }) => {
+	.get("/users/current", async ({ bearer, set }) => {
 		try {
-			const result = await usersService.getCurrentUser(headers.authorization);
+			if (!bearer) throw new Error("unauthorized");
+			const result = await usersService.getCurrentUser(bearer);
 			return result;
 		} catch (error: any) {
 			set.status = 401;
@@ -46,14 +49,11 @@ export const usersRoute = new Elysia({ prefix: "/api" })
 				message: "unauthorized"
 			};
 		}
-	}, {
-		headers: t.Object({
-			authorization: t.Optional(t.String()),
-		})
 	})
-	.post("/users/logout", async ({ headers, set }) => {
+	.post("/users/logout", async ({ bearer, set }) => {
 		try {
-			const result = await usersService.logoutUser(headers.authorization);
+			if (!bearer) throw new Error("unauthorized");
+			const result = await usersService.logoutUser(bearer);
 			return result;
 		} catch (error: any) {
 			set.status = 401;
@@ -61,10 +61,6 @@ export const usersRoute = new Elysia({ prefix: "/api" })
 				message: "unauthorized"
 			};
 		}
-	}, {
-		headers: t.Object({
-			authorization: t.Optional(t.String()),
-		})
 	})
 	.get("/users", async () => {
 		return await usersService.getAllUsers();
