@@ -57,6 +57,28 @@ export const usersService = {
 		};
 	},
 
+	async logoutUser(authHeader: string | undefined) {
+		if (!authHeader || !authHeader.startsWith("Bearer ")) {
+			throw new Error("unauthorized");
+		}
+		const token = authHeader.substring(7);
+
+		const sessionRecord = await db
+			.select()
+			.from(sessions)
+			.where(eq(sessions.token, token));
+
+		if (sessionRecord.length === 0) {
+			throw new Error("unauthorized");
+		}
+
+		await db.delete(sessions).where(eq(sessions.token, token));
+
+		return {
+			data: "OK",
+		};
+	},
+
 	async getCurrentUser(authHeader: string | undefined) {
 		if (!authHeader || !authHeader.startsWith("Bearer ")) {
 			throw new Error("unauthorized");
