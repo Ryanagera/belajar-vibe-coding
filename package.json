@@ -8,6 +8,7 @@
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
+    "@elysiajs/bearer": "^1.4.3",
     "bcrypt": "^6.0.0",
     "drizzle-orm": "latest",
     "elysia": "latest",
