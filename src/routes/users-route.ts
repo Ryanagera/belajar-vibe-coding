@@ -51,6 +51,21 @@ export const usersRoute = new Elysia({ prefix: "/api" })
 			authorization: t.Optional(t.String()),
 		})
 	})
+	.post("/users/logout", async ({ headers, set }) => {
+		try {
+			const result = await usersService.logoutUser(headers.authorization);
+			return result;
+		} catch (error: any) {
+			set.status = 401;
+			return {
+				message: "unauthorized"
+			};
+		}
+	}, {
+		headers: t.Object({
+			authorization: t.Optional(t.String()),
+		})
+	})
 	.get("/users", async () => {
 		return await usersService.getAllUsers();
 	});
